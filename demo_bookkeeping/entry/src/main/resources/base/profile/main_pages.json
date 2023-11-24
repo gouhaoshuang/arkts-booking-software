@@ -1,8 +1,6 @@
 {
   "src": [
-    "pages/MainPage",
-    "view/test01",
-    "view/test02"
+    "pages/MainPage"
 
   ]
 }

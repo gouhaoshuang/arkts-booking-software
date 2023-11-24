@@ -38,6 +38,18 @@
       "value": "#0D182431"
     },
     {
+      "name": "text_h2",
+      "value": "#18A1DF"
+    },
+    {
+      "name": "text_h3",
+      "value": "#94C2EA"
+    },
+    {
+      "name": "text_value",
+      "value": "#ffffff"
+    },
+    {
       "name": "main_color",
       "value": "#FF007DFF"
     },

@@ -163,6 +163,13 @@ export default class CommonConstants {
 
   static readonly  InitData:AccountData[] = [
     { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:7,month:11,year:2023 ,date_string:'2023年11月7日'},
+    { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:23,month:11,year:2023 ,date_string:'2023年11月23日'},
+    { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:3,month:11,year:2023 ,date_string:'2023年11月3日'},
+    { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:3,month:11,year:2023 ,date_string:'2023年11月3日'},
+    { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:3,month:11,year:2023 ,date_string:'2023年11月3日'},
+    { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:7,month:11,year:2023 ,date_string:'2023年11月7日'},
+    { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:7,month:11,year:2023 ,date_string:'2023年11月7日'},
+    { id: 0, accountType: 0, typeText: '吃饭', amount: 34 ,day:7,month:11,year:2023 ,date_string:'2023年11月7日'},
     { id: 2, accountType: 0, typeText: '吃饭', amount: 3234 ,day:5,month:11,year:2023 ,date_string:'2023年11月5日'},
     { id: 4, accountType: 0, typeText: '吃饭', amount: 23 ,day:4,month:11,year:2023 ,date_string:'2023年11月4日'}
   ]

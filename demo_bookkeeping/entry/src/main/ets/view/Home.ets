@@ -13,7 +13,7 @@ import CommonConstants from '../common/constant/CommonConstants';
 export struct home {
   @State accounts: Array<AccountData> = []; //展示在主页的数据
 
-  @State dataDisplayTable: {title:string , week:string, projects:AccountData[]}[] = [];
+  @State dataDisplayTable: {title:string , week:string, dateValue:number ,projects:AccountData[]}[] = [];
   @State index: number = -1; //现在选中的选项
   @State newAccount: AccountData = {
     id: 0,
@@ -48,7 +48,6 @@ export struct home {
   });
 
   accept(isInsert: boolean, newAccount: AccountData): void {
-    Logger.info(`测试：newAccount:  ${JSON.stringify(newAccount)}`)
     newAccount.day = this.date_value.day;
     newAccount.month = Number(this.date_value.month) + 1;
     newAccount.year = this.date_value.year;
@@ -60,12 +59,8 @@ export struct home {
       });
     } else {
       this.AccountTable.updateData(newAccount, () => {
+        this.queryDataBase();
       });
-      let list = this.accounts;
-      this.accounts = [];
-      list[this.index] = newAccount;
-      this.accounts = list;
-      this.index = -1;
     }
   }
 
@@ -89,6 +84,7 @@ export struct home {
            }
          }
        });
+
   }
 
   deleteListItem() {
@@ -103,33 +99,17 @@ export struct home {
     this.isEdit = false;
   }
 
-  private timetable: any = [
-    {
-      title: '星期一',
-      projects: ['语文', '数学', '英语']
-    },
-    {
-      title: '星期二',
-      projects: ['物理', '化学', '生物']
-    },
-
-    {
-      title: '星期三',
-      projects: ['历史', '地理', '政治']
-    },
-    {
-      title: '星期四',
-      projects: ['美术', '音乐', '体育']
-    }
-  ]
-
   getDateWeek(day:number , month:number, year:number){
     let temparray = ['星期一','星期二','星期三','星期四','星期五','星期六','星期日'];
     let tempweek = new Date(year,month,day).getDay()
     return temparray[tempweek];
   }
+  getDateValue(day:number , month:number, year:number){
+    let temp = year * 10000 + month * 100 + day;
+    return temp;
+  }
 
-  getDataDisplay(data:AccountData[]){
+  getDataDisplay(data:AccountData[] ){
 
     this.dataDisplayTable = [];
     for(let i = 0;i < data.length;i++){
@@ -140,45 +120,75 @@ export struct home {
 
           this.dataDisplayTable[j].projects.push(data[i]);
           this.dataDisplayTable[j].week = this.getDateWeek(data[i].day,data[i].month,data[i].year);
-
+          this.dataDisplayTable[j].dateValue = this.getDateValue(data[i].day,data[i].month,data[i].year);
           flag = 1;
           break;
         }
       }
       if(flag === 0 ){
-        this.dataDisplayTable[j] = {title: data[i].date_string ,week:'', projects:[] } ;
+        this.dataDisplayTable[j] = {title: data[i].date_string ,week:'',dateValue:0, projects:[] } ;
         this.dataDisplayTable[j].projects.push(data[i]);
         this.dataDisplayTable[j].week = this.getDateWeek(data[i].day,data[i].month,data[i].year);
+        this.dataDisplayTable[j].dateValue = this.getDateValue(data[i].day,data[i].month,data[i].year);
       }
-    }
 
+    }
   }
 
   queryDataBase(){
     this.AccountTable.query(0,(result: AccountData[])=>{
+      result.sort((a,b)=>{
+        let a1 = a.year*10000+ a.month*100 + a.day;
+        let b1 = b.year*10000+ b.month*100 + b.day;
+        return a1-b1;
+      })
       this.accounts = result;
+
       if(result.length){
-        this.getDataDisplay(result);
-      }
+          this.getDataDisplay(result );
+        }
     },true)
 
   }
 
   @Builder itemHead(text: string) {
-    Text(text)
-      .fontSize(20)
-      .backgroundColor(0xAABBCC)
-      .width("100%")
-      .padding(10)
+    Row(){
+      Text(text)
+        .fontSize(15)
+        .backgroundColor('#fff3edd0')
+        .width("100%")
+        .padding(3)
+    }
   }
 
   @Builder itemFoot(num: number) {
-    Text('共' + num + "节课")
-      .fontSize(16)
-      .backgroundColor(0xAABBCC)
-      .width("100%")
-      .padding(5)
+    Row(){
+      Text('共' + num + "条记录")
+        .fontSize(12)
+        .backgroundColor('#fff3edd0')
+        .width("100%")
+        .padding(3)
+        .margin({right:30})
+    }
+    .justifyContent(FlexAlign.Start)
   }
+
+
+  selectListItem(item: AccountData) {
+    this.isInsert = false;
+    this.index = this.accounts.indexOf(item);
+    this.newAccount = {
+      id: item.id,
+      accountType: item.accountType,
+      typeText: item.typeText,
+      day: item.day,
+      year: item.year,
+      month: item.month,
+      date_string:item.date_string,
+      amount: item.amount
+    };
+  }
+
 
   build() {
     Column() {
@@ -270,83 +280,75 @@ export struct home {
       .height('27%')
 
 
-      //
-      // List({ space: 20, initialIndex: 0 }) {
-      //   ForEach(this.accounts, (item) => {
-      //
-      //     ListItem() {
-      //       Row(){
-      //         Column(){
-      //           Text(item.date_string)
-      //             .fontSize(10)
-      //             .fontColor('#ffa77878')
-      //
-      //           Divider()
-      //             .width('100%')
-      //         }
-      //         .alignItems(HorizontalAlign.Start)
-      //         .height('30%')
-      //
-      //         Column(){
-      //           Row(){
-      //             Image(ImageList[item.typeText])
-      //               .width(40)
-      //               .aspectRatio(CommonConstants.FULL_SIZE)
-      //               .margin({ right: $r('app.float.edge_size_MP') })
-      //             Text(item.typeText)
-      //               .height(22)
-      //               .fontSize(16)
-      //
-      //             Blank()
-      //               .layoutWeight(1)
-      //
-      //             if (!this.isEdit) {
-      //               Text(item.accountType === 0 ? '-' + item.amount.toString() : '+' + item.amount.toString())
-      //                 .fontSize($r('app.float.font_size_M'))
-      //                 .fontColor(item.accountType === 0 ? Color.Red : $r('app.color.main_color'))
-      //                 .align(Alignment.End)
-      //                 .flexGrow(CommonConstants.FULL_SIZE)
-      //             }
-      //           }
-      //
-      //         }
-      //         .height('70%')
-      //       }
-      //       .width('100%')
-      //       .height(70)
-      //       .justifyContent(FlexAlign.Start)
-      //       .borderRadius(10).backgroundColor(0xFFFFFF)
-      //
-      //     }
-      //   })
-      // }
-      // .width('90%')
-      //
       Column() {
-        List({ space: 20, initialIndex: 0 }) {
+        List({ space: 20 }) {
           ForEach(this.dataDisplayTable, (item) => {
-            ListItem() {
-              Text(`${JSON.stringify(item)}`)
-                .width('100%').height(100).fontSize(16)
-                .textAlign(TextAlign.Center).borderRadius(10).backgroundColor(0xFFFFFF)
+            ListItemGroup({ header:this.itemHead(item.title), footer:this.itemFoot(item.projects.length) }) {
+              ForEach(item.projects, (project) => {
+                ListItem() {
+                  Row() {
+                    Image(ImageList[project.typeText])
+                      .width($r('app.float.component_size_M'))
+                      .aspectRatio(CommonConstants.FULL_SIZE)
+                      .margin({ right: $r('app.float.edge_size_MP') })
+
+                    Text(project.typeText)
+                      .height($r('app.float.component_size_SM'))
+                      .fontSize($r('app.float.font_size_M'))
+
+                    Blank()
+                      .layoutWeight(1)
+
+                    if (!this.isEdit) {
+                      Text(project.accountType === 0 ? '-' + project.amount.toString() : '+' + project.amount.toString())
+                        .fontSize($r('app.float.font_size_M'))
+                        .fontColor(project.accountType === 0 ? '#ffdb3535' : $r('app.color.main_color'))
+                        .align(Alignment.End)
+                        .flexGrow(CommonConstants.FULL_SIZE)
+                    }else {
+                      Row() {
+                        Toggle({ type: ToggleType.Checkbox })
+                          .onChange((isOn) => {
+                            if (isOn) {
+                              this.deleteList.push(project);
+                            } else {
+                              let index = this.deleteList.indexOf(project);
+                              this.deleteList.splice(index, 1);
+                            }
+                          })
+                      }
+                      .align(Alignment.End)
+                      .flexGrow(CommonConstants.FULL_SIZE)
+                      .justifyContent(FlexAlign.End)
+                    }
+
+
+
+                  }
+                  .width(CommonConstants.FULL_WIDTH)
+                  .padding({ left: $r('app.float.edge_size_M'), right: $r('app.float.edge_size_M') })
+                }
+                .width(CommonConstants.FULL_WIDTH)
+                .backgroundColor('#fff8f1bd')
+                .height($r('app.float.component_size_LM'))
+                .onClick(() => {
+                  this.selectListItem(project);
+                  this.dialogController.open();
+                })
+
+
+
+              },(item)=>JSON.stringify(item))
             }
+            .borderRadius(20)
+            .divider({ strokeWidth: 1, color: Color.Blue }) // 每行之间的分界线
           })
         }
-        .scrollBar(BarState.On)
-        .listDirection(Axis.Vertical) // 排列方向
-        .divider({ strokeWidth: 2, color: 0xFFFFFF, startMargin: 20, endMargin: 20 }) // 每行之间的分界线
-        .edgeEffect(EdgeEffect.Spring) // 滑动到边缘无效果
-        .onScrollIndex((firstIndex: number, lastIndex: number) => {
-          console.info('first' + firstIndex)
-          console.info('last' + lastIndex)
-        })
         .width('90%')
+        .sticky(StickyStyle.Header|StickyStyle.Footer)
+      }.width('100%').height('100%').backgroundColor(0xDCDCDC).padding({ top: 5 })
 
-      }
-      .width('100%')
-      .height('100%')
-      .backgroundColor(0xDCDCDC)
-      .padding({ top: 5 })
+
     }
 
   }

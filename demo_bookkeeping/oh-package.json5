@@ -6,6 +6,7 @@
   "author": "",
   "license": "",
   "dependencies": {
+    "lite_chart": "^0.0.1"
   },
   "devDependencies": {
     "@ohos/hypium": "1.0.6"
